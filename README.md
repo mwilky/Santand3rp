@@ -16,9 +16,9 @@
 
 ## 🛠️ How It Works
 
-Two main hooks are applied:
+Two main hooks are applied: (Class and method names accurate as of Santander UK Android app (Version: 5.17.0)
 
-1. **Blocks Zygisk Detection Method** (Class and method names accurate as of Santander UK Android app (Version: 5.17.0)
+1. **Blocks Zygisk Detection Method**
    - Intercepts and nullifies `aat.᫓ࡥ.᫐()`, which is responsible for detecting Zygisk via string scanning and file checks (e.g., `/proc/self/smaps`, etc.).
 
 2. **Prevents Crash Loop**
