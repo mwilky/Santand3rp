@@ -1,7 +1,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/mwilky/Santand3rp?style=for-the-badge)](https://github.com/mwilky/Santand3rp/releases)
 [![Downloads](https://img.shields.io/github/downloads/mwilky/Santand3rp/total?style=for-the-badge)](https://github.com/mwilky/Santand3rp/releases)
 
-# Santander Zygisk Bypass
+# Santander zygisk detection bypass
 
 **A Xposed module to bypass Zygisk detection in the Santander UK Android app.**
 
