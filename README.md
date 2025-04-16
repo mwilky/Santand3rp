@@ -30,7 +30,7 @@ These hooks prevent the app from crashing or refusing to run when Zygisk impleme
 
 ## 🧪 Requirements
 
-- ✅ [LSPosed](https://github.com/LSPosed/LSPosed)
+- ✅ LSPosed implementation
 - ✅ Root solution with a Zygisk implementation enabled
 - ❗ Tested with the Santander UK Android app (Version: 5.17.0)
 
@@ -43,7 +43,7 @@ These hooks prevent the app from crashing or refusing to run when Zygisk impleme
 3. Push the compiled module to your device.
 4. Enable the module in **LSPosed** for the Santander UK app only.
 5. Reboot your device.
-6. Open the Santander UK app — it should now launch without crashing or complaining about Zygisk/root.
+6. Open the Santander UK app — it should now launch without crashing.
 
 ---
 
