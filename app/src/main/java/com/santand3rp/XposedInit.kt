@@ -1,11 +1,16 @@
 package com.santand3rp
 
+import android.app.AndroidAppHelper
+import android.util.Log
+import dalvik.system.DexFile
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.log
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import de.robv.android.xposed.XposedHelpers.findClass
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import java.lang.reflect.Modifier
 
 class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
@@ -14,6 +19,16 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
         const val SANTANDER_PACKAGE = "uk.co.santander.santanderUK"
 
         private var MODULE_PATH: String? = null
+
+        val crashHooks = listOf(
+            "aat.\u1AD5\u1AC1" to "\u1AD7",   // 5.17.0
+            "rrj.\u1AC1\u086C" to "\u1ADE"    // 5.18.0
+        )
+
+        val detectionHooks = listOf(
+            "aat.\u1AD3\u0865" to "\u1AD0", // 5.17.0
+            "rrj.\u0862\u1AC6" to "\u086A", // 5.18.0
+        )
     }
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam?) {
@@ -21,155 +36,41 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
         when(lpparam?.packageName) {
             SANTANDER_PACKAGE -> {
                 // Prevent the StackOverflow decoy
-                findAndHookMethod(
-                    "aat.᫕᫁",
-                    lpparam.classLoader,
-                    "᫗",
-                    object : XC_MethodHook() {
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            log("🛑 Preventing StackOverflow decoy")
-                            param.result = null
-                        }
+                for ((className, methodName) in crashHooks) {
+                    try {
+                        findAndHookMethod(
+                            className,
+                            lpparam.classLoader,
+                            methodName,
+                            object : XC_MethodHook() {
+                                override fun beforeHookedMethod(param: MethodHookParam) {
+                                    log("🛑 Preventing StackOverflow decoy: $className.$methodName")
+                                    param.result = null
+                                }
+                            }
+                        )
+                    } catch (e: Throwable) {
                     }
-                )
-
-                // Prevent the detection
-                findAndHookMethod(
-                    "aat.᫓ࡥ",
-                    lpparam.classLoader,
-                    "᫐",
-                    object : XC_MethodHook() {
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            log("🛑 Preventing Zygisk check")
-                            param.result = null
-                        }
+                }
+                // Prevent the zygisk detection
+                for ((className, methodName) in detectionHooks) {
+                    try {
+                        findAndHookMethod(
+                            className,
+                            lpparam.classLoader,
+                            methodName,
+                            object : XC_MethodHook() {
+                                override fun beforeHookedMethod(param: MethodHookParam) {
+                                    log("🛑 Preventing Zygisk detection: $className.$methodName")
+                                    param.result = null
+                                }
+                            }
+                        )
+                    } catch (e: Throwable) {
                     }
-                )
+                }
 
-                /*
-                 The below hooks are hooking the string decoders in the app. This makes the string readable so we can
-                 determine what the app is searching for in regards to root/zygisk. You can filter out results here
-                 for things like "su" "root" "zygisk" "zygote" etc if required. Only uncomment these to debug.
-                */
 
-                /*
-                findAndHookMethod(
-                    "aat.\u0864\u0868",
-                    lpparam.classLoader,
-                    "\u1ad6",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-
-                findAndHookMethod(
-                    "aat.\u0865\u0868",
-                    lpparam.classLoader,
-                    "\u086a",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-
-                findAndHookMethod(
-                    "aat.\u086b\u0868",
-                    lpparam.classLoader,
-                    "\u1ada",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-
-                findAndHookMethod(
-                    "aat.\u1ac5\u0868",
-                    lpparam.classLoader,
-                    "\u1ac9",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-
-                findAndHookMethod(
-                    "aat.\u1acb\u0868",
-                    lpparam.classLoader,
-                    "\u086f",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-
-                findAndHookMethod(
-                    "aat.\u1ad0\u0868",
-                    lpparam.classLoader,
-                    "\u086b",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-
-                findAndHookMethod(
-                    "aat.\u1ad0\u0868",
-                    lpparam.classLoader,
-                    "\u086b",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-
-                findAndHookMethod(
-                    "aat.\u1ad2\u0868",
-                    lpparam.classLoader,
-                    "\u086c",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-
-                findAndHookMethod(
-                    "aat.\u1ad5\u0868",
-                    lpparam.classLoader,
-                    "\u0863",
-                    String::class.java, Short::class.javaPrimitiveType, Short::class.javaPrimitiveType,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            val result = param.result?.toString() ?: return
-                            log("🔍 Decoded: $result")
-                        }
-                    }
-                )
-                */
             }
         }
     }
@@ -177,5 +78,4 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
         MODULE_PATH = startupParam!!.modulePath
     }
-
 }
