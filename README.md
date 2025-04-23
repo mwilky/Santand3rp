@@ -18,11 +18,11 @@
 
 Two main hooks are applied:
 
-  - detectionHooks = `aat.\u1AD3\u0865.\u1AD0` (5.17.0) & 
-      `rrj.\u0862\u1AC6.\u086A` (5.18.0)
-
-  - crashHooks = `aat.\u1AD5\u1AC1.\u1AD7` (5.17.0) & 
-      `rrj.\u1AC1\u086C.\u1ADE` (5.18.0)
+    - detectionHooks = `aat.\u1AD3\u0865.\u1AD0` (5.17.0) & 
+        `rrj.\u0862\u1AC6.\u086A` (5.18.0)
+  
+    - crashHooks = `aat.\u1AD5\u1AC1.\u1AD7` (5.17.0) & 
+        `rrj.\u1AC1\u086C.\u1ADE` (5.18.0)
 
 1. **Blocks Zygisk Detection Method**
    - Intercepts and nullifies `detectionHooks`, which is responsible for detecting Zygisk via string scanning and file checks (e.g., `/proc/self/smaps`, `/debug_ramdisk/zygisk`  etc.).
