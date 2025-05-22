@@ -16,23 +16,31 @@
 
 ## 🛠️ How It Works
 
-Two main hooks are applied: (Class and method names accurate as of Santander UK Android app (Version: 5.17.0)
+The module applies two core method hooks depending on the app version:
 
-1. **Blocks Zygisk Detection Method**
-   - Intercepts and nullifies `aat.᫓ࡥ.᫐()`, which is responsible for detecting Zygisk via string scanning and file checks (e.g., `/proc/self/smaps`, etc.).
+### 🔍 Detection Hook
+This hook blocks the Zygisk detection logic which scans strings and filesystem paths like `/proc/self/smaps` and `/debug_ramdisk/zygisk`.
 
-2. **Prevents Crash Loop**
-   - Skips the execution of `aat.᫕᫁.᫗()`, a method that causes a deliberate infinite recursion resulting in `StackOverflowError`.
+| App Version | Method Signature                      |
+|-------------|----------------------------------------|
+| 5.17.0      | `aat.᫓ࡥ.᫐()`                         |
+| 5.18.0      | `rrj.ࡢ᫆.ࡪ()`                         |
 
-These hooks prevent the app from crashing or refusing to run when Zygisk implementations are present.
+### 💥 Crash Loop Hook
+This hook skips execution of the crash loop method that triggers a `StackOverflowError` through infinite recursion.
+
+| App Version | Method Signature                      |
+|-------------|----------------------------------------|
+| 5.17.0      | `aat.᫕᫁.᫗()`                         |
+| 5.18.0      | `rrj.᫁࡬.᫞()`                         |
 
 ---
 
 ## 🧪 Requirements
 
-- ✅ LSPosed implementation
-- ✅ Root solution with a Zygisk implementation enabled
-- ❗ Tested with the Santander UK Android app (Version: 5.17.0)
+- ✅ LSPosed or compatible Xposed framework
+- ✅ Device with root access and Zygisk enabled
+- ❗ Tested with Santander UK Android app versions **5.17.0** and **5.18.0**
 
 ---
 
