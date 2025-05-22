@@ -132,16 +132,26 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         override fun afterHookedMethod(param: MethodHookParam) {
                             val result = param.result
                             if (result is List<*>) {
-                                result.forEachIndexed { i, obj ->
+                                // Collect all non-blank f557 values in a set (for uniqueness)
+                                val unique = mutableSetOf<String>()
+                                result.forEach { obj ->
                                     if (obj != null) {
                                         try {
                                             val clazz = obj.javaClass
-                                            val f557 = clazz.getDeclaredField("᫉").apply { isAccessible = true }.get(obj)
-
-                                            //log("📖 [$i] $f557")
-                                        } catch (e: Throwable) {
-                                            //log("📖 [$i] Failed to read fields: ${e.message}")
-                                        }
+                                            val f557 = clazz.getDeclaredField("᫉").apply { isAccessible = true }.get(obj) as? String
+                                            if (!f557.isNullOrBlank()
+                                                && !f557.startsWith("/system/")
+                                                && !f557.startsWith("/system_ext/")
+                                                && !f557.startsWith("/product/")
+                                                && !f557.startsWith("[anon:stack_and_tls")
+                                                && !f557.startsWith("/apex")
+                                                && !f557.startsWith("/vendor")
+                                                && !f557.startsWith("/data/app")
+                                                && !f557.startsWith("/data/data")
+                                                && unique.add(f557)) {
+                                                //log(f557)
+                                            }
+                                        } catch (_: Throwable) {}
                                     }
                                 }
                             }
