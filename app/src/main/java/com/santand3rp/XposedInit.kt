@@ -69,7 +69,7 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
                 This looks to be the root zygisk/root check function, from here it calls a host
                 of functions that throw an exception if things are detected. We
-                got here by tracing back the above string decoder
+                got here by tracing back the above string decoder. C0614.m3899(); seems to be the one that is tripping detection
 
                 renamed from: ࡰ, reason: not valid java name and contains not printable characters
                     public static void m4227() {
@@ -102,9 +102,9 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
                  */
 
                 findAndHookMethod(
-                    "aaw.᫋ࡨ",
+                    "aaw.ࡣࡪ",
                     lpparam.classLoader,
-                    "ࡰ",
+                    "ࡡ",
                     object : XC_MethodHook() {
                         override fun beforeHookedMethod(param: MethodHookParam) {
                             //log("stack = ${Throwable().stackTraceToString()}")
@@ -112,7 +112,6 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         }
                     }
                 )
-
 
                 /*
                 This is a secondary function that is called in multiple places. It searches the below files using bufferedReader.readLine()
